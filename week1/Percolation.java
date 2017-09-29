@@ -48,7 +48,8 @@ public class Percolation {
             if (row == 1) {
                 tree.union(0, currentSite);
                 treeFull.union(0, currentSite);
-            } else if (row == size) {
+            }
+            if (row == size) {
                 tree.union(size*size+1, currentSite);
             }
             if (row-1 > 0 && isOpen(row-1, col)) {

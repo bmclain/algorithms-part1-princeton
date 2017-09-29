@@ -14,18 +14,17 @@ import edu.princeton.cs.algs4.StdRandom;
 import edu.princeton.cs.algs4.StdStats;
 
 public class PercolationStats {
-    private final double[] percArr;
-    private final int numTrials;
-    private static double percValue = 1.96;
+    private final double mean;
+    private final double stddev;
+    private final double confidenceLo;
+    private final double confidenceHi;
     
     // perform trials independent experiments on an n-by-n grid
     public PercolationStats(int n, int trials) {
         if (n <= 0 || trials <= 0) {
             throw new java.lang.IllegalArgumentException();
         }
-        int size = n;
-        numTrials = trials;
-        percArr = new double[trials];
+        double[] percArr = new double[trials];
         for (int i = 0; i < trials; i++) {
             Percolation p = new Percolation(n);
             while (!p.percolates()) {
@@ -34,28 +33,33 @@ public class PercolationStats {
                 p.open(row, col);
             }
             // Cast to double before division
-            percArr[i] = ((double) p.numberOfOpenSites()) / ((double) (size*size));
+            percArr[i] = ((double) p.numberOfOpenSites()) / ((double) (n*n));
         }
+        mean = StdStats.mean(percArr);
+        stddev = StdStats.stddev(percArr);
+        double confidenceFrac = (1.96 * stddev) / Math.sqrt(trials);
+        confidenceLo = mean() - confidenceFrac;
+        confidenceHi = mean() + confidenceFrac;
     }
     
     // sample mean of percolation threshold
     public double mean() {
-        return StdStats.mean(percArr);
+        return mean;
     }
     
     // sample standard deviation of percolation threshold
     public double stddev() {
-        return StdStats.stddev(percArr);
+        return stddev;
     }
     
     // low  endpoint of 95% confidence interval
     public double confidenceLo() {
-        return mean() - ((percValue * stddev()) / Math.sqrt(numTrials));
+        return confidenceLo;
     }
     
     // high endpoint of 95% confidence interval
     public double confidenceHi() {                  
-        return mean() + ((percValue * stddev()) / Math.sqrt(numTrials));
+        return confidenceHi;
     }
 
     // test client (described below)
